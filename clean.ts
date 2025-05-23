@@ -2,7 +2,7 @@ import fs from 'fs-extra'
 import { join, parse } from 'path'
 import childProcess from 'child_process'
 
-async function clean(rootDir: string) {
+function clean(rootDir: string) {
   const projectFilePath = join.bind(null, rootDir)
   const pkgFilePath = join.bind(null, projectFilePath('node_modules'))
 
@@ -19,11 +19,9 @@ async function clean(rootDir: string) {
     }
   })
 
-  await Promise.all(
-    reservedFiles.map(async ({ from, to }) => {
-      await fs.rename(from, to).catch(() => {})
-    }),
-  )
+  reservedFiles.map(({ from, to }) => {
+    fs.moveSync(from, to)
+  })
 
   childProcess.execSync(
     `
@@ -40,11 +38,9 @@ async function clean(rootDir: string) {
     { shell: '/bin/bash' },
   )
 
-  await Promise.all(
-    reservedFiles.map(async ({ from, to }) => {
-      await fs.rename(to, from).catch(() => {})
-    }),
-  )
+  reservedFiles.map(({ from, to }) => {
+    fs.moveSync(to, from)
+  })
 }
 
 clean(process.argv[2])
