@@ -423,13 +423,16 @@ class Main {
     this.log('等待 MongoDB 服务可用...', true)
     await this.waitMongoDBAvailable()
 
-    this.log('安装 YApi 插件...', true)
-    await this.installPluginsIfNeeded()
+    let exist = fs.existsSync('/yapi/data/init.lock');
+    if (!exist) {
+		this.log('安装 YApi 插件...', true)
+		await this.installPluginsIfNeeded()
 
-    this.log('尝试安装 YApi...', true)
-    await Helper.execJsFile('/yapi/vendors/server/install.js', (message) =>
-      this.log(message),
-    )
+		this.log('尝试安装 YApi...', true)
+		await Helper.execJsFile('/yapi/vendors/server/install.js', (message) =>
+		  this.log(message),
+		)
+	}
 
     this.log('关闭引导服务...', true)
     await this.bootstrapServer.close()
